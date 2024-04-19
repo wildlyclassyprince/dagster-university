@@ -19,6 +19,9 @@ class AdhocRequestConfig(Config):
     deps=['taxi_zones', 'taxi_trips',]
 )
 def adhoc_request(config: AdhocRequestConfig, database: DuckDBResource):
+    """
+    Summary stats grouped by date details.
+    """
 
     file_path = constants.REQUEST_DESTINATION_TEMPLATE_FILE_PATH.format(config.filename.split('.')[0])
 

@@ -163,5 +163,5 @@ cython_debug/
 tmp*/
 
 # data
-project/data/
+project/data/raw/
 project/data/staging/data.duckdb
