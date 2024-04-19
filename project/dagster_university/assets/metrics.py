@@ -9,6 +9,7 @@ import duckdb
 import os
 
 from . import constants
+from ..partitions import weekly_partition
 
 
 @asset(
@@ -58,10 +59,14 @@ def manhattan_map():
     pio.write_image(fig, constants.MANHATTAN_MAP_FILE_PATH)
 
 @asset(
-    deps=['taxi_trips']
+    deps=['taxi_trips'],
+    partitions_def=weekly_partition,
 )
-def trips_by_week(database: DuckDBResource):
-    query = """
+def trips_by_week(context, database: DuckDBResource):
+
+    period_to_fetch = context.asset_partition_key_for_output()
+
+    query = f"""
         select
             date_trunc('week', pickup_datetime) as period,
             count(vendor_id)::int as num_trips,
@@ -69,7 +74,9 @@ def trips_by_week(database: DuckDBResource):
             round(sum(total_amount), 2) as total_amount,
             round(sum(trip_distance), 2) as trip_distance
         from trips
-        where period >= '2023-03-01'
+        where 
+            pickup_datetime >= '{period_to_fetch}'
+            and pickup_datetime < '{period_to_fetch}'::date + interval '1 week'
         group by period
         order by period asc;
     """
